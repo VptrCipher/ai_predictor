@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Stock Market Predictor - Live Trading Dashboard</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- TensorFlow.js for ML -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.10.0/dist/tf.min.js"></script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="grid-lines"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>AI Stock Predictor</h1>
+                        <p>Real-time Market Analysis & Predictions</p>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <!-- Search Box -->
+                    <div class="search-box" id="searchBoxRoot">
+                        <input type="text" id="searchInput" placeholder="Search symbol (e.g., AAPL, TSLA)" />
+                        <button id="searchBtn" title="Search"><i class="fas fa-search"></i></button>
+                        <div id="autocompleteList" class="autocomplete-list"></div>
+                    </div>
+
+                    <div class="last-update">
+                        <span class="update-label">Last Updated</span>
+                        <span class="update-time" id="lastUpdateTime">--:--:--</span>
+                        <div id="liveIndicator" class="live-indicator">• Offline</div>
+                    </div>
+
+                    <button class="refresh-btn" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Market Status -->
+    <section class="market-banner">
+        <div class="container">
+            <div class="banner-content">
+                <div class="status-indicator">
+                    <i class="fas fa-circle pulse"></i>
+                    <span class="status-text">Market Status: <strong id="marketStatus">LOADING</strong></span>
+                </div>
+                <p class="banner-description">
+                    Live data from Finnhub • AI-powered predictions • Real-time news updates
+                    <span id="mlStatus" class="ml-status-badge">ML: Initializing...</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Controls -->
+            <section class="controls-section">
+                <div class="controls-row">
+                    <div class="history-chips" id="searchHistory"></div>
+                    <div class="favorites-chips" id="pinnedList"></div>
+                </div>
+            </section>
+
+            <!-- Stock Cards Grid -->
+            <section class="stocks-section">
+                <div class="stock-grid" id="stockGrid">
+                    <!-- Dynamically filled -->
+                </div>
+            </section>
+
+            <!-- Stock Detail View -->
+            <section class="stock-detail-container" id="stockDetailView" style="display: none;">
+                <!-- Left Sidebar - Watchlist -->
+                <div class="watchlist-sidebar">
+                    <div class="watchlist-title">WATCHLIST</div>
+                    <div id="watchlistContent">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+
+                <!-- Main Content Area -->
+                <div class="main-detail-area">
+                    <!-- Stock Header Card -->
+                    <div class="stock-header-card">
+                        <div class="stock-title-section">
+                            <div class="stock-title-left">
+                                <h1 id="detailStockSymbol">--</h1>
+                                <span class="sector-badge" id="detailSector">Loading...</span>
+                            </div>
+                            <div class="stock-title-right">
+                                <div class="stock-current-price" id="detailCurrentPrice">$0.00</div>
+                                <div class="stock-price-change" id="detailPriceChange">
+                                    <span class="change-positive">+0.00%</span>
+                                    <span class="change-amount">(+$0.00)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chart Period Selector -->
+                        <div class="chart-period-selector">
+                            <button class="period-btn active" data-period="1D">1D</button>
+                            <button class="period-btn" data-period="1W">1W</button>
+                            <button class="period-btn" data-period="1M">1M</button>
+                            <button class="period-btn" data-period="3M">3M</button>
+                            <button class="period-btn" data-period="1Y">1Y</button>
+                        </div>
+
+                        <!-- Chart Container -->
+                        <div class="chart-container">
+                            <canvas id="detailChart" width="800" height="350"></canvas>
+                    </div>
+                    </div>
+
+                    <!-- Tabs Section -->
+                    <div class="tabs-container">
+                        <div class="tabs-header">
+                            <button class="tab-button active" data-tab="overview">Overview</button>
+                            <button class="tab-button" data-tab="financials">Financials</button>
+                            <button class="tab-button" data-tab="predictions">Predictions</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <!-- Overview Tab -->
+                            <div id="overviewTab" class="tab-pane active">
+                                <div class="overview-grid" id="overviewGrid">
+                                    <!-- Dynamically filled -->
+                                </div>
+                            </div>
+
+                            <!-- Predictions Tab -->
+                            <div id="predictionsTab" class="tab-pane">
+                                <div class="prediction-card" id="predictionCard">
+                                    <!-- Dynamically filled -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar - News -->
+                <div class="news-sidebar">
+                    <div class="news-container">
+                        <div class="news-header">
+                            <div class="news-title">
+                                <i class="fas fa-newspaper"></i>
+                                Related News
+                            </div>
+                            <div class="news-sources-badge">
+                                <i class="fas fa-check-circle"></i>
+                                <span id="activeSourcesCount">Loading sources...</span>
+                            </div>
+                            <div class="news-search">
+                                <input type="text" id="newsSearchInput" placeholder="Search news...">
+                                <i class="fas fa-search news-search-icon"></i>
+                            </div>
+                        </div>
+                        <div class="news-content" id="newsContentDetail">
+                            <div class="news-loading">
+                                <div class="spinner"></div>
+                                <p>Loading news...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Back to Dashboard Button -->
+            <div class="back-to-dashboard" id="backToDashboard" style="display: none;">
+                <button onclick="hideStockDetailView()">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 AI Stock Predictor. Data provided by Finnhub. Predictions are for informational purposes only.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="ml.js"></script>
+    <script src="news-aggregator.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
