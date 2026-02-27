@@ -233,13 +233,7 @@ The project can be deployed using:
 - Automated feature selection
 - Model monitoring & drift detection
 - CI/CD pipeline integration
-
----
-
-## 👤 Author
-
-VptrCipher 
-Machine Learning Engineer  
+ 
 ---
 
 ## 📜 License
