@@ -238,11 +238,8 @@ The project can be deployed using:
 
 ## 👤 Author
 
-VptrCipher
+VptrCipher 
 Machine Learning Engineer  
-LinkedIn: https://linkedin.com/in/yourprofile  
-Portfolio: https://yourportfolio.com  
-
 ---
 
 ## 📜 License
